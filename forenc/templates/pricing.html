@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Precios - Detector Forense</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-gradient bg-primary text-white py-5 mb-5">
+            <div class="container text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-crown"></i> 
+                    Planes y Precios
+                </h1>
+                <p class="lead">Elige el plan perfecto para tus necesidades de análisis forense</p>
+                <a href="/" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Volver a la App
+                </a>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Comparación de Planes -->
+            <div class="row justify-content-center">
+                <!-- Plan Gratuito -->
+                <div class="col-lg-5 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-light text-center py-4">
+                            <h3 class="mb-0">
+                                <i class="fas fa-gift text-success"></i> 
+                                Plan Gratuito
+                            </h3>
+                            <div class="display-4 mt-3 mb-2">
+                                <strong>$0</strong>
+                                <small class="text-muted fs-6">gratis</small>
+                            </div>
+                            <p class="text-muted">Perfecto para probar la tecnología</p>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <strong>5 análisis gratuitos</strong>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Algoritmos SIFT + Ruido completos
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Interfaz web moderna
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Exportación CSV
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Análisis limitados
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Sin app de escritorio
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    Soporte básico
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="/" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-play"></i> Comenzar Gratis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Premium -->
+                <div class="col-lg-5 mb-4">
+                    <div class="card h-100 shadow-lg border-warning position-relative">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-warning text-dark px-3 py-2">
+                                <i class="fas fa-star"></i> RECOMENDADO
+                            </span>
+                        </div>
+                        <div class="card-header bg-warning text-dark text-center py-4 mt-3">
+                            <h3 class="mb-0">
+                                <i class="fas fa-crown"></i> 
+                                Plan Premium
+                            </h3>
+                            <div class="display-4 mt-3 mb-2">
+                                <strong>${{ premium_price }}</strong>
+                                <small class="fs-6">pago único</small>
+                            </div>
+                            <p class="mb-0">Acceso completo de por vida</p>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <strong>Análisis ilimitados</strong>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Algoritmos forenses avanzados
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <strong>Aplicación de escritorio</strong>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Procesamiento offline
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Sin límites de uso
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Soporte prioritario
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Actualizaciones futuras
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-warning btn-lg px-4" onclick="processPremiumUpgrade()">
+                                <i class="fas fa-credit-card"></i> 
+                                Upgrade Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Características Premium Detalladas -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-star"></i> 
+                                ¿Por qué elegir Premium?
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-desktop fa-3x text-primary mb-3"></i>
+                                        <h5>Aplicación de Escritorio</h5>
+                                        <p class="text-muted">
+                                            Descarga la aplicación completa para usar sin conexión 
+                                            a internet con todas las funcionalidades.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-infinity fa-3x text-success mb-3"></i>
+                                        <h5>Análisis Ilimitados</h5>
+                                        <p class="text-muted">
+                                            Procesa tantas imágenes como necesites sin restricciones 
+                                            ni límites de uso diarios.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <div class="text-center">
+                                        <i class="fas fa-headset fa-3x text-info mb-3"></i>
+                                        <h5>Soporte Premium</h5>
+                                        <p class="text-muted">
+                                            Acceso a soporte técnico especializado y 
+                                            actualizaciones prioritarias.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h3 class="text-center mb-4">Preguntas Frecuentes</h3>
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    ¿Qué incluye la aplicación de escritorio?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    La aplicación de escritorio incluye todos los algoritmos forenses (SIFT, análisis de ruido, 
+                                    matrices NumPy), funciona sin conexión a internet, y permite procesar grandes volúmenes 
+                                    de imágenes localmente con máxima privacidad.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    ¿El pago es único o recurrente?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Es un <strong>pago único</strong> de ${{ premium_price }}. Una vez que actualizas a Premium, 
+                                    tienes acceso de por vida sin pagos adicionales.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    ¿Puedo usar el plan gratuito indefinidamente?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Sí, el plan gratuito te permite realizar hasta 5 análisis para evaluar la tecnología. 
+                                    Para uso continuo y profesional, recomendamos el upgrade a Premium.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-shield-alt"></i> 
+                Detector Forense de Falsificaciones | 
+                Tecnología avanzada para análisis de imágenes
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function processPremiumUpgrade() {
+            if (confirm('¿Proceder con el upgrade a Premium por ${{ premium_price }}?')) {
+                // Simular procesamiento de pago
+                alert('Procesando pago...');
+                
+                fetch('/upgrade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('¡Upgrade exitoso! Redirigiendo...');
+                        window.location.href = '/';
+                    } else {
+                        alert('Error en el upgrade: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Error de conexión');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

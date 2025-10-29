@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Detector Forense de Falsificaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-primary text-white py-4 mb-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="mb-0">
+                            <i class="fas fa-search"></i> 
+                            Detector Forense de Falsificaciones
+                            {% if user_data.is_premium %}
+                                <span class="badge bg-warning text-dark ms-2">
+                                    <i class="fas fa-crown"></i> PREMIUM
+                                </span>
+                            {% endif %}
+                        </h1>
+                        <p class="mb-0 opacity-75">Análisis avanzado con algoritmos SIFT + Ruido Residual</p>
+                        {% if not user_data.is_premium %}
+                            <p class="mb-0 mt-2">
+                                <i class="fas fa-gift"></i> 
+                                <strong>Pruebas restantes: {{ remaining_trials }}/5</strong>
+                                {% if remaining_trials <= 2 %}
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        <i class="fas fa-exclamation-triangle"></i> Pocas restantes
+                                    </span>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="col-auto">
+                        {% if not user_data.is_premium %}
+                            <a href="#" class="btn btn-warning me-2" onclick="showUpgradeModal()">
+                                <i class="fas fa-crown"></i> Upgrade Premium
+                            </a>
+                        {% else %}
+                            <a href="/download-desktop" class="btn btn-success me-2">
+                                <i class="fas fa-download"></i> Descargar App Escritorio
+                            </a>
+                        {% endif %}
+                        <button class="btn btn-outline-light" onclick="clearAllData()">
+                            <i class="fas fa-trash"></i> Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Sección de subida de archivos -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-upload"></i> Subir Imágenes para Análisis
+                            </h5>
+                            <!-- Información de archivos soportados -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-file-image text-info"></i>
+                                        <strong>Formatos soportados:</strong> JPG, JPEG, PNG, BMP, TIFF, WEBP
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-weight-hanging text-warning"></i>
+                                        <strong>Tamaño máximo:</strong> 10MB por imagen | 50MB total
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
+                                    <h5>Arrastra y suelta imágenes aquí</h5>
+                                    <p class="text-muted">O haz clic para seleccionar archivos</p>
+                                    
+                                    <!-- Etiquetas de especificaciones -->
+                                    <div class="row justify-content-center mb-3">
+                                        <div class="col-auto">
+                                            <span class="badge bg-info me-2">
+                                                <i class="fas fa-file-image"></i> JPG, PNG, BMP, TIFF
+                                            </span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-weight-hanging"></i> Máx. 10MB c/u
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" id="fileInput" multiple 
+                                           accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.webp,image/jpeg,image/png,image/bmp,image/tiff,image/webp" 
+                                           class="d-none">
+                                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                        <i class="fas fa-folder-open"></i> Seleccionar Archivos
+                                    </button>
+                                </div>
+                                <div class="upload-progress d-none" id="uploadProgress">
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-muted">Subiendo archivos...</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Lista de archivos subidos -->
+                            <div id="fileList" class="mt-3"></div>
+                            
+                            <!-- Botón de análisis -->
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success btn-lg" id="analyzeBtn" onclick="analyzeImages()" disabled>
+                                    <i class="fas fa-microscope"></i> Iniciar Análisis Forense
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de progreso -->
+            <div class="row mb-4 d-none" id="analysisSection">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cogs"></i> Análisis en Progreso
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-3">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     id="analysisProgress" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div id="analysisStatus" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Procesando imágenes...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de resultados -->
+            <div class="row mb-4 d-none" id="resultsSection">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar"></i> Resultados del Análisis
+                            </h5>
+                            <button class="btn btn-outline-light btn-sm" onclick="downloadResults()">
+                                <i class="fas fa-download"></i> Descargar CSV
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <!-- Resumen estadístico -->
+                            <div class="row mb-4" id="statsRow">
+                                <div class="col-md-3">
+                                    <div class="stat-card bg-primary text-white p-3 rounded">
+                                        <div class="stat-number" id="totalImages">0</div>
+                                        <div class="stat-label">Total Imágenes</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card bg-success text-white p-3 rounded">
+                                        <div class="stat-number" id="authenticImages">0</div>
+                                        <div class="stat-label">Auténticas</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card bg-warning text-white p-3 rounded">
+                                        <div class="stat-number" id="manipulatedImages">0</div>
+                                        <div class="stat-label">Manipuladas</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card bg-info text-white p-3 rounded">
+                                        <div class="stat-number" id="accuracy">0%</div>
+                                        <div class="stat-label">Procesadas</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabla de resultados detallados -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Imagen</th>
+                                            <th>Dimensiones</th>
+                                            <th>Estado</th>
+                                            <th>Codificación RLE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsTable">
+                                        <!-- Los resultados se llenarán dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Upgrade a Premium -->
+    <div class="modal fade" id="upgradeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-crown"></i> Upgrade a Premium
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-gift"></i> Plan Gratuito</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> 5 análisis gratuitos</li>
+                                <li><i class="fas fa-times text-danger"></i> Análisis limitados</li>
+                                <li><i class="fas fa-times text-danger"></i> Solo acceso web</li>
+                                <li><i class="fas fa-times text-danger"></i> Sin app de escritorio</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-crown text-warning"></i> Plan Premium</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Análisis ilimitados</li>
+                                <li><i class="fas fa-check text-success"></i> Sin restricciones</li>
+                                <li><i class="fas fa-check text-success"></i> Aplicación de escritorio</li>
+                                <li><i class="fas fa-check text-success"></i> Soporte prioritario</li>
+                                <li><i class="fas fa-check text-success"></i> Procesamiento offline</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h3 class="text-primary">
+                                    ${{ premium_price }}
+                                    <small class="text-muted">pago único</small>
+                                </h3>
+                                <p class="mb-0">Acceso completo de por vida</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Incluye:</strong> Aplicación de escritorio premium, análisis ilimitados, 
+                        actualizaciones futuras y soporte técnico especializado.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning btn-lg" onclick="processPremiumUpgrade()">
+                        <i class="fas fa-credit-card"></i> 
+                        Upgrade a Premium - ${{ premium_price }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Límite Alcanzado -->
+    <div class="modal fade" id="limitReachedModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle"></i> Límite Alcanzado
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-ban fa-3x text-danger"></i>
+                    </div>
+                    <h6>Has alcanzado el límite de 5 pruebas gratuitas</h6>
+                    <p class="text-muted">
+                        Para continuar con análisis ilimitados, actualiza a Premium y 
+                        obtén acceso completo incluyendo la aplicación de escritorio.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="showUpgradeModal()" data-bs-dismiss="modal">
+                        <i class="fas fa-crown"></i> Ver Premium
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-shield-alt"></i> 
+                Detector Forense de Falsificaciones | 
+                Algoritmos SIFT + Análisis de Ruido Residual |
+                <span id="statusIndicator" class="badge bg-success">En línea</span>
+                {% if not user_data.is_premium %}
+                    | <a href="#" onclick="showUpgradeModal()" class="text-warning">
+                        <i class="fas fa-crown"></i> Upgrade Premium
+                    </a>
+                {% endif %}
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
